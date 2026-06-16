@@ -74,7 +74,7 @@ claude:
 
 - a plan was generated after this.
 
-- I started with the feature 1 with the default path,"Add a project health dashboard endpoint that returns phase completion stats per active change (status, artifact count, last updated)"
+- I started with the feature 1 with the default path, /opsx:propose: "Add a project health dashboard endpoint that returns phase completion stats per active change (status, artifact count, last updated)"
   ┌────────────────────────────────┬───────────────────────────────────┬───────────────────────────────────────────────────┐
   │            Artifact            │               File                │                      Purpose                      │
   ├────────────────────────────────┼───────────────────────────────────┼───────────────────────────────────────────────────┤
@@ -87,3 +87,6 @@ claude:
   │ tasks.md                       │ implementation checklist          │ AC#2 evidence: phase 4 artifact, needed for apply │
   └────────────────────────────────┴───────────────────────────────────┴───────────────────────────────────────────────────┘
   This is your first AC#2 data point: four phases, each producing a versioned artifact aligned with the spec‑driven schema.
+
+- then I applied the changes /opsx:apply and the tasks were implemented, one by one
+- I got an issue after the apply, so check always the proposal and if you need some changes is the correct phase to do it, this happens with the default path since is genuinely "I trust the config is already set up, just go.",  with the expanded path we can avoid this
