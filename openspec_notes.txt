@@ -73,3 +73,17 @@ claude:
   customization angle). That contrast also makes good article material.
 
 - a plan was generated after this.
+
+- I started with the feature 1 with the default path,"Add a project health dashboard endpoint that returns phase completion stats per active change (status, artifact count, last updated)"
+  ┌────────────────────────────────┬───────────────────────────────────┬───────────────────────────────────────────────────┐
+  │            Artifact            │               File                │                      Purpose                      │
+  ├────────────────────────────────┼───────────────────────────────────┼───────────────────────────────────────────────────┤
+  │ proposal.md                    │ why + what changes + capabilities │ AC#2 evidence: phase 1 artifact                   │
+  ├────────────────────────────────┼───────────────────────────────────┼───────────────────────────────────────────────────┤
+  │ design.md                      │ technical decisions + trade-offs  │ AC#2 evidence: phase 2 artifact                   │
+  ├────────────────────────────────┼───────────────────────────────────┼───────────────────────────────────────────────────┤
+  │ specs/health-dashboard/spec.md │ SHALL requirements + scenarios    │ AC#2 evidence: phase 3 artifact                   │
+  ├────────────────────────────────┼───────────────────────────────────┼───────────────────────────────────────────────────┤
+  │ tasks.md                       │ implementation checklist          │ AC#2 evidence: phase 4 artifact, needed for apply │
+  └────────────────────────────────┴───────────────────────────────────┴───────────────────────────────────────────────────┘
+  This is your first AC#2 data point: four phases, each producing a versioned artifact aligned with the spec‑driven schema.
