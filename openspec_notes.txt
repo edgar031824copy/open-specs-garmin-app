@@ -1,0 +1,75 @@
+---------------------------------------- OPENSPECS -----------------------------------------------
+
+- me: 
+    I have this ticket ticket.xml, the idea is to investigate about     
+    that of course learn and comply with the A/C, initially on this       
+    session I used workflows to investigate the state of that and         
+    generated this document lit-37-state-of-the-art.md, but the idea is   
+    that I learn, so what do you think is the best path to do it, is it   
+    valable the state of art investegation, the important thing is to     
+    define a plan to address this ticket learning and showing a result    
+
+- me: 
+    before of that to make a plan I'd like to know what you recommened    
+    me, read in detail the lit-37-state-of-the-art.md, also see videos    
+    how openspec works or what? remember our main goal is to learn and    
+    complete the A/C. plase take into account that I dont have experience 
+    with openspec, but I worked in a solo-mode project where I            
+    implemented epic driven developmt (see the memory                     
+    /Users/edgar.hernandez/.claude/projects/-Users-edgar-hernandez-Deskto 
+    p-solo-mode/memory/project-solo-mode.md)                
+
+- claude: 
+    Your starting position is stronger than you think.
+      Your solo-mode project is conceptually very close to what LIT-37 is
+      asking you to build. You already understand:
+      - Phase-based development with distinct artifacts per phase
+      (design-epic-N.md, amendments.md, .phase file)
+      - AI agents executing each phase with defined inputs/outputs
+      - A lifecycle from requirements to shipped product
+      - The pain of inventing your own lifecycle and maintaining it solo
+
+      OpenSpec is essentially the same mental model but with a shared,
+      adoptable artifact schema instead of a custom one you own. The
+      learning isn't "understand agentic lifecycles from scratch" — it's
+      "understand how OpenSpec formalizes what you already built
+      informally."
+
+
+- update memory with all important things to address this ticket sucessfully like your recommendation and its order to avoid, also Default path vs Expanded path
+
+me:
+  I read this 3 documents https://github.com/Fission-AI/OpenSpec/blob/main/docs/getting-started.md https://github.com/Fission-AI/OpenSpec/blob/main/docs/opsx.md https://github.com/Fission-AI/OpenSpec/blob/main/docs/workflows.md so what is difference between Default quick path and Expanded path (custom workflow selection), 
+is the expanded the new approach and default legacy, what should we use? I saw videos and almost all uses the default path and I understood how it works, but after ready docs I think the recommended is the Expanded path, also is OPSX the only that use schemas and should we use that one for our plan? explain me this well before to continue without plan?
+
+claude:
+  Default path vs Expanded path — what they actually are
+
+  Both are OPSX. The distinction isn't legacy vs. new. It's granularity of control.
+
+  Default quick path (core profile):
+  /opsx:propose ──► /opsx:apply ──► /opsx:sync ──► /opsx:archive
+
+  Expanded path (custom workflow selection):
+  /opsx:new ──► /opsx:ff or /opsx:continue ──► /opsx:apply ──► /opsx:verify ──► /opsx:archive
+
+  The actual legacy is something else entirely — the original OpenSpec workflow where instructions were hardcoded in TypeScript, locked,
+  all-or-nothing, no customization. OPSX replaced that entirely. When the docs say "OPSX is now the standard workflow for OpenSpec," they mean OPSX
+  superseded that old TypeScript system.
+
+  Yes.The schema extensibility (schema.yaml + user-editable templates) is specifically what OPSX introduced over the legacy workflow. The legacy
+  system had hardcoded prompts you couldn't touch. OPSX is the one where you can edit templates and have changes take effect immediately at runtime —
+  which is exactly what our research confirmed (finding 1.4, confidence 2-1).
+  Use the expanded path. Three reasons specific to your ticket:
+
+  1. AC#2 (versioned artifacts against a schema) — the expanded path makes each artifact explicit and separable. You can point to new → ff → apply →
+  verify as distinct phase outputs. With the default, it all collapses into one propose step which is harder to demonstrate as "each phase produces a
+  versioned artifact."
+  2. AC#3 (plugs into different targets without forking) — the expanded path exposes the template/schema layer more directly. When you customize for
+  Solo vs. Team vs. Scale, you're editing the templates that ff/continue uses. This is the customization story for your demo.
+  3. Learning — you're new to OpenSpec. The expanded path shows you what's happening at each step. The default path is a black box on first run.
+
+  For the two-feature PoC, you could run feature 1 with the default path (to understand the baseline) and feature 2 with the expanded path (to show the
+  customization angle). That contrast also makes good article material.
+
+- a plan was generated after this.
