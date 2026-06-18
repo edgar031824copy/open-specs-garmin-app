@@ -1,20 +1,24 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Target: Team (cross-team coordination required)
+  Tech stack: TypeScript, Node.js, Express backend. React frontend.
+  Backend deployed on Render free tier. Frontend deployed on Netlify free tier. No paid services.
+  Database: Supabase free tier — stores the user's training plan (parsed rows) and accepted plan modifications.
+  Garmin data access via garmin-connect npm package (unofficial API, single-user, credentials via env vars on Render).
+  AI suggestions via Anthropic SDK (claude-sonnet-4-6) — suggests plan modifications based on actual vs planned training.
+  File parsing: CSV and XLS support. Date resolution from Week+Day columns using a plan start date provided by the user in the UI.
+  Apps live under apps/<name>/ in a monorepo with shared package.json and tsconfig.json.
+  Changes that affect shared interfaces or cross-team contracts must include a Stakeholders section in the proposal.
+  Use conventional commits. Document non-goals explicitly.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  proposal:
+    - Always include a "Stakeholders" section listing affected teams
+    - Always include a "Non-goals" section
+    - Keep proposals under 400 words
+  tasks:
+    - Break tasks into chunks of max 2 hours
+    - Each task must identify its owner role (Frontend / Backend / Platform)
+  spec:
+    - Include an "Integration points" section for cross-team interfaces
