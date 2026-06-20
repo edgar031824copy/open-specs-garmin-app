@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { getActivitiesForDate, GarminActivity } from '../lib/garmin';
 import { computeAlignment } from '../lib/alignment';
+import { getAlternateDateStrings } from '../lib/dateResolver';
 import pool from '../db';
 
 const router = Router();
@@ -19,8 +20,20 @@ router.post('/sync', async (_req: Request, res: Response) => {
 
     for (const session of sessions) {
       let activities: GarminActivity[];
+      const primaryDate = new Date(session.session_date).toISOString().slice(0, 10);
       try {
-        activities = await getActivitiesForDate(session.session_date);
+        activities = await getActivitiesForDate(primaryDate);
+
+        if (activities.length === 0 && session.is_flexible) {
+          const alternateDates = getAlternateDateStrings(primaryDate, session.week_day);
+          for (const altDate of alternateDates) {
+            const altActivities = await getActivitiesForDate(altDate);
+            if (altActivities.length > 0) {
+              activities = altActivities;
+              break;
+            }
+          }
+        }
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
         if (msg.includes('auth') || msg.includes('login') || msg.includes('401')) {

@@ -1,13 +1,13 @@
 import { PlanRow } from './parser';
 
 const DAY_OFFSETS: Record<string, number> = {
-  monday: 0,
-  tuesday: 1,
-  wednesday: 2,
-  thursday: 3,
-  friday: 4,
-  saturday: 5,
-  sunday: 6,
+  monday: 0, mon: 0,
+  tuesday: 1, tue: 1,
+  wednesday: 2, wed: 2,
+  thursday: 3, thu: 3,
+  friday: 4, fri: 4,
+  saturday: 5, sat: 5,
+  sunday: 6, sun: 6,
 };
 
 function parseWeekNumber(week: string): number {
@@ -16,16 +16,16 @@ function parseWeekNumber(week: string): number {
   return parseInt(match[1], 10);
 }
 
-function parseDayOffset(day: string): { offset: number; isFlexible: boolean } {
+function parseDayOffset(day: string): { offset: number; isFlexible: boolean; alternateNames: string[] } {
   const normalized = day.toLowerCase().trim();
-  // Handle "Friday/Saturday" — use Friday, flag as flexible
   if (normalized.includes('/')) {
-    const primary = normalized.split('/')[0].trim();
-    return { offset: DAY_OFFSETS[primary] ?? 4, isFlexible: true };
+    const parts = normalized.split('/').map(p => p.trim());
+    const primary = parts[0];
+    return { offset: DAY_OFFSETS[primary] ?? 4, isFlexible: true, alternateNames: parts.slice(1) };
   }
   const offset = DAY_OFFSETS[normalized];
   if (offset === undefined) throw new Error(`Unknown day: "${day}"`);
-  return { offset, isFlexible: false };
+  return { offset, isFlexible: false, alternateNames: [] };
 }
 
 export interface ResolvedSession {
@@ -34,6 +34,29 @@ export interface ResolvedSession {
   training: string;
   sessionDate: Date;
   isFlexible: boolean;
+  alternateDates: Date[];
+}
+
+// Returns YYYY-MM-DD strings for each alternate date given a stored week_day like "Fri/Sat"
+// and the already-resolved primary session date string.
+export function getAlternateDateStrings(primaryDateStr: string, weekDay: string): string[] {
+  const normalized = weekDay.toLowerCase().trim();
+  if (!normalized.includes('/')) return [];
+  const parts = normalized.split('/').map(p => p.trim());
+  const primaryName = parts[0];
+  const primaryOffset = DAY_OFFSETS[primaryName];
+  if (primaryOffset === undefined) return [];
+
+  const dateOnly = primaryDateStr.slice(0, 10);
+  const primary = new Date(dateOnly + 'T12:00:00');
+  return parts.slice(1).flatMap(name => {
+    const altOffset = DAY_OFFSETS[name];
+    if (altOffset === undefined) return [];
+    const diff = altOffset - primaryOffset;
+    const alt = new Date(primary);
+    alt.setDate(primary.getDate() + diff);
+    return [alt.toISOString().split('T')[0]];
+  });
 }
 
 export function resolveDates(rows: PlanRow[], planStartDate: Date): ResolvedSession[] {
@@ -43,9 +66,14 @@ export function resolveDates(rows: PlanRow[], planStartDate: Date): ResolvedSess
 
   return rows.map(row => {
     const weekNum = parseWeekNumber(row.week);
-    const { offset, isFlexible } = parseDayOffset(row.weekDay);
+    const { offset, isFlexible, alternateNames } = parseDayOffset(row.weekDay);
     const sessionDate = new Date(monday);
     sessionDate.setDate(monday.getDate() + (weekNum - 1) * 7 + offset);
-    return { ...row, sessionDate, isFlexible };
+    const alternateDates = alternateNames.map(name => {
+      const altDate = new Date(monday);
+      altDate.setDate(monday.getDate() + (weekNum - 1) * 7 + (DAY_OFFSETS[name] ?? offset));
+      return altDate;
+    });
+    return { ...row, sessionDate, isFlexible, alternateDates };
   });
 }
