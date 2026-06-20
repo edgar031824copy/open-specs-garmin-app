@@ -20,6 +20,8 @@ export default function UploadForm({ onUploaded }: Props) {
     setSuccess('');
     try {
       const res = await uploadPlan(file, startDate);
+      localStorage.setItem('planFilename', file.name);
+      localStorage.setItem('planStartDate', startDate);
       setSuccess(`✓ Imported ${res.data.imported} sessions`);
       onUploaded();
     } catch (err: unknown) {

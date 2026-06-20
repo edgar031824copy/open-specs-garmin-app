@@ -14,7 +14,9 @@ export default function App() {
     if (sugRes.status === 'fulfilled') setSuggestions(sugRes.value.data);
   }, []);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => {
+    if (localStorage.getItem('planFilename')) loadData();
+  }, [loadData]);
 
   return (
     <main>

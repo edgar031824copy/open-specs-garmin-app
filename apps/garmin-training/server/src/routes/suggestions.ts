@@ -27,15 +27,17 @@ router.get('/', async (_req: Request, res: Response) => {
       return res.json([]);
     }
 
+    const toDateStr = (d: unknown) => new Date(d as string).toISOString().slice(0, 10);
+
     const suggestions = await generateSuggestions(
       deviatedSessions.map(s => ({
-        sessionDate: s.session_date,
+        sessionDate: toDateStr(s.session_date),
         training: s.training,
         alignmentStatus: s.alignment_status,
         deviationReason: s.deviation_reason,
       })),
       upcomingSessions.map(s => ({
-        sessionDate: s.session_date,
+        sessionDate: toDateStr(s.session_date),
         training: s.training,
       }))
     );

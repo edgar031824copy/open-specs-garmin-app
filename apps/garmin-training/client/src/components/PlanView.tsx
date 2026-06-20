@@ -23,6 +23,8 @@ const STATUS_LABELS: Record<string, string> = {
 export default function PlanView({ sessions, onRefresh }: Props) {
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState('');
+  const planFilename = localStorage.getItem('planFilename');
+  const planStartDate = localStorage.getItem('planStartDate');
 
   const handleSync = async () => {
     setSyncing(true);
@@ -51,6 +53,12 @@ export default function PlanView({ sessions, onRefresh }: Props) {
       </div>
       {syncMsg && <p style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>{syncMsg}</p>}
 
+      {planFilename && planStartDate && (
+        <p style={{ fontSize: '0.85rem', color: '#555', marginBottom: '0.75rem', background: '#f0f0f0', borderRadius: 8, padding: '0.5rem 0.75rem' }}>
+          📄 {planFilename} · starts {new Date(planStartDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+        </p>
+      )}
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {sessions.map(s => (
           <div key={s.id} style={{ background: STATUS_COLORS[s.alignment_status], borderRadius: 10, padding: '0.75rem' }}>
@@ -71,7 +79,7 @@ export default function PlanView({ sessions, onRefresh }: Props) {
 
             {(s.actual_distance || s.actual_pace) && (
               <p style={{ fontSize: '0.85rem', color: '#444', marginTop: 4 }}>
-                Actual: {s.actual_distance ? `${s.actual_distance.toFixed(2)} km` : ''}
+                Actual: {s.actual_distance ? `${Number(s.actual_distance).toFixed(2)} km` : ''}
                 {s.actual_pace ? ` @ ${s.actual_pace}/km` : ''}
               </p>
             )}
