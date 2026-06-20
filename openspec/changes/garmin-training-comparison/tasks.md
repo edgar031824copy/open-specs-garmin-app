@@ -51,3 +51,15 @@
 - [ ] 6.2 Deploy Express backend to Render free tier; set all env vars in Render dashboard [Platform]
 - [ ] 6.3 Deploy React frontend to Netlify; set `VITE_API_URL` to Render backend URL [Platform]
 - [ ] 6.4 Smoke test on mobile after deployment: upload plan → sync → view alignment → accept suggestion [Platform]
+
+---
+
+## Known Issues Fixed During Apply
+
+- **garmin-connect version hallucinated** (task 0.3): `package.json` referenced `^1.7.1` which does not exist on npm. Latest is `1.6.2`. Fixed inline — pinned to `^1.6.2`.
+- **Date parsing bug** (task 2.1): `garmin.ts` used `startTimeLocal.split('T')[0]` but the library returns space-separated format (`"2026-06-17 06:39:19"`). The `??` fallback never triggered because split on a missing separator returns the whole string, not null. Fixed to `split(' ')[0]`.
+- **TypeScript implicit any** (task 2.3): `let activities` in `sync.ts` had no type annotation, causing TS7034/TS7005 errors. Fixed by importing `GarminActivity` and typing the variable explicitly.
+- **Duplicate DATABASE_URL key in .env** (task 6.1): `.env` had `DATABASE_URL=DATABASE_URL="postgresql://..."` — the key was repeated, causing `pg` to receive the literal string `DATABASE_URL="..."` as the connection string, which resolved the host as `"base"` (ENOTFOUND base). Fixed by removing the duplicate prefix.
+- **Invalid Date in PlanView** (task 6.1): `formatDate` in `PlanView.tsx` appended `T00:00:00` to the raw `session_date` field, but Supabase returns dates as full ISO timestamps (e.g. `"2026-06-16T00:00:00+00:00"`), producing an unparseable string. Fixed by slicing to `d.slice(0, 10)` before appending the time suffix.
+- **Timezone off-by-one in plan upload** (task 6.1): `new Date(planStartDate)` in `plan.ts` parsed the ISO date string as UTC midnight, which in local timezones behind UTC resolves to the previous calendar day, shifting all stored session dates back by 1 day. Fixed by parsing as `new Date(planStartDate + 'T12:00:00')` (local noon) to stay on the correct date regardless of timezone.
+- **Timezone off-by-one in Garmin sync** (task 6.1): `getActivitiesForDate` in `garmin.ts` accepted a `Date` object and called `.toISOString().split('T')[0]`, converting back to UTC and shifting the lookup date by 1 day. Fixed by accepting a date string directly and passing `session.session_date` from `sync.ts` without any `Date` object conversion.

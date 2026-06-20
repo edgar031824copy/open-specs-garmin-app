@@ -22,3 +22,7 @@ rules:
     - Each task must identify its owner role (Frontend / Backend / Platform)
   spec:
     - Include an "Integration points" section for cross-team interfaces
+  apply:
+    - Any inline fix (bug, wrong version, type error, wrong assumption) must be tracked as a new OpenSpec change using /opsx:new fix-<issue> → /opsx:ff → /opsx:apply → /opsx:archive before returning to the original change
+    - Do not silently fix and move on — every fix gets its own artifacts so the audit trail is first-class, not a freeform note
+    - Exception: pure generation errors (typos, missing imports, obvious compilation errors fixable in under 2 minutes) may be fixed inline without a new change
