@@ -47,7 +47,9 @@
 
 ## 6. Deployment [Platform]
 
-- [ ] 6.1 Verify end-to-end locally: upload plan → sync → view alignment → accept suggestion [Platform]
+> **Note:** 6.2–6.4 are optional for the LIT-37 PoC. Demo was recorded locally (2026-06-21) with live Garmin data. Deploy deferred — open a dedicated `garmin-deploy` change if needed.
+
+- [x] 6.1 Verify end-to-end locally: upload plan → sync → view alignment → accept suggestion [Platform]
 - [ ] 6.2 Deploy Express backend to Render free tier; set all env vars in Render dashboard [Platform]
 - [ ] 6.3 Deploy React frontend to Netlify; set `VITE_API_URL` to Render backend URL [Platform]
 - [ ] 6.4 Smoke test on mobile after deployment: upload plan → sync → view alignment → accept suggestion [Platform]
