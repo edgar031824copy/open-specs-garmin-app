@@ -9,6 +9,7 @@ export default function App() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(false);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const [uploadCount, setUploadCount] = useState(0);
 
   const loadSessions = useCallback(async () => {
     setSessionsLoading(true);
@@ -36,9 +37,9 @@ export default function App() {
       <h1 style={{ fontSize: '1.4rem', fontWeight: 700, margin: '1rem 0', textAlign: 'center' }}>
         Garmin Training Tracker
       </h1>
-      <UploadForm onUploaded={loadAll} />
+      <UploadForm onUploaded={loadAll} onBeforeUpload={() => setUploadCount(c => c + 1)} />
       <SuggestionsPanel suggestions={suggestions} sessions={sessions} onAccepted={loadSessions} loading={suggestionsLoading} />
-      <PlanView sessions={sessions} onRefresh={loadAll} loading={sessionsLoading} />
+      <PlanView key={uploadCount} sessions={sessions} onRefresh={loadAll} loading={sessionsLoading} />
     </main>
   );
 }

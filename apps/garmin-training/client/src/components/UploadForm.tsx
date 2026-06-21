@@ -3,9 +3,10 @@ import { uploadPlan } from '../api';
 
 interface Props {
   onUploaded: () => void;
+  onBeforeUpload?: () => void;
 }
 
-export default function UploadForm({ onUploaded }: Props) {
+export default function UploadForm({ onUploaded, onBeforeUpload }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [startDate, setStartDate] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,6 +20,9 @@ export default function UploadForm({ onUploaded }: Props) {
     setError('');
     setSuccess('');
     try {
+      localStorage.removeItem('planFilename');
+      localStorage.removeItem('planStartDate');
+      onBeforeUpload?.();
       const res = await uploadPlan(file, startDate);
       localStorage.setItem('planFilename', file.name);
       localStorage.setItem('planStartDate', startDate);
