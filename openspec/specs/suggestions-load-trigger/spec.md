@@ -1,9 +1,7 @@
 ## Purpose
 
 Defines when the system is allowed to call `/api/suggestions`. Suggestions are only fetched as a result of explicit data-changing actions (Garmin sync, plan upload), never on passive page load.
-
 ## Requirements
-
 ### Requirement: Suggestions are fetched only after Sync
 The system SHALL call `/api/suggestions` exclusively when the user triggers a Garmin sync, not on page load or on any other user action.
 
@@ -20,3 +18,13 @@ The system SHALL call `/api/suggestions` exclusively when the user triggers a Ga
 #### Scenario: Upload triggers suggestions fetch
 - **WHEN** the user uploads a new training plan
 - **THEN** the system SHALL call `/api/suggestions` after sessions are loaded, since new data warrants fresh suggestions
+
+### Requirement: Suggestions endpoint excludes accepted sessions
+The suggestions endpoint SHALL exclude both deviated sessions AND upcoming sessions that already have an accepted modification from the data sent to Claude.
+
+#### Scenario: Both deviated and upcoming filters applied
+- **WHEN** the suggestions endpoint is called
+- **THEN** the `deviatedSessions` query SHALL exclude session dates present in `plan_modifications`
+- **AND** the `upcomingSessions` query SHALL also exclude session dates present in `plan_modifications`
+- **AND** Claude SHALL only receive sessions with no prior accepted modification
+

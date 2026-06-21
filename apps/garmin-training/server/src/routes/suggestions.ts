@@ -19,7 +19,9 @@ router.get('/', async (_req: Request, res: Response) => {
     const { rows: upcomingSessions } = await pool.query(
       `SELECT session_date, training
        FROM plan_sessions
-       WHERE session_date > $1 AND alignment_status = 'upcoming'
+       WHERE session_date > $1
+         AND alignment_status = 'upcoming'
+         AND session_date NOT IN (SELECT session_date FROM plan_modifications)
        ORDER BY session_date ASC`,
       [today]
     );
