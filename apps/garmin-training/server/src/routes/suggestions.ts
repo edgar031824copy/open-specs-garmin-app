@@ -63,10 +63,6 @@ router.post('/accept', async (req: Request, res: Response) => {
        SET suggested_training = EXCLUDED.suggested_training, reason = EXCLUDED.reason, accepted_at = now()`,
       [sessionDate, originalTraining, suggestedTraining, reason ?? null]
     );
-    await pool.query(
-      `UPDATE plan_sessions SET suggested_training = $1 WHERE session_date = $2`,
-      [suggestedTraining, sessionDate]
-    );
     res.json({ accepted: true });
   } catch (err) {
     res.status(500).json({ error: 'Failed to save modification' });
