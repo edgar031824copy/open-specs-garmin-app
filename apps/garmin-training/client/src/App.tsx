@@ -7,16 +7,24 @@ import { fetchSessions, fetchSuggestions, PlanSession, Suggestion } from './api'
 export default function App() {
   const [sessions, setSessions] = useState<PlanSession[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
 
   const loadSessions = useCallback(async () => {
+    setSessionsLoading(true);
     const res = await fetchSessions().catch(() => null);
     if (res) setSessions(res.data);
+    setSessionsLoading(false);
   }, []);
 
   const loadAll = useCallback(async () => {
+    setSessionsLoading(true);
+    setSuggestionsLoading(true);
     const [sessRes, sugRes] = await Promise.allSettled([fetchSessions(), fetchSuggestions()]);
     if (sessRes.status === 'fulfilled') setSessions(sessRes.value.data);
+    setSessionsLoading(false);
     if (sugRes.status === 'fulfilled') setSuggestions(sugRes.value.data);
+    setSuggestionsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -29,8 +37,8 @@ export default function App() {
         Garmin Training Tracker
       </h1>
       <UploadForm onUploaded={loadAll} />
-      <SuggestionsPanel suggestions={suggestions} onAccepted={loadSessions} />
-      <PlanView sessions={sessions} onRefresh={loadAll} />
+      <SuggestionsPanel suggestions={suggestions} sessions={sessions} onAccepted={loadSessions} loading={suggestionsLoading} />
+      <PlanView sessions={sessions} onRefresh={loadAll} loading={sessionsLoading} />
     </main>
   );
 }

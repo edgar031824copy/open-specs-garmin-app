@@ -37,6 +37,19 @@ Feature 2: `garmin-training-comparison` (expanded path, Team target)
 - App code: `apps/garmin-training/`
 - Status: apply in progress — end-to-end test pending
 
+## Naming rule (CRITICAL)
+
+All OpenSpec changes related to the Garmin Training app (`apps/garmin-training/`) **must be prefixed with `garmin-`**:
+
+```
+garmin-<change-name>     ✅ correct
+<change-name>            ❌ wrong — no prefix
+```
+
+Examples: `garmin-ui-polish`, `garmin-fix-suggestion-actions`, `garmin-loading-states`
+
+This applies to new changes, fix changes, and any sub-features scoped to this app.
+
 ## Apply rule (CRITICAL)
 
 Any inline fix — bug, wrong version, type error, wrong assumption — must be tracked as a **new OpenSpec change**, not a freeform note:

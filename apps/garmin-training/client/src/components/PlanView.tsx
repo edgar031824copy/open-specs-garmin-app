@@ -4,6 +4,7 @@ import { PlanSession, triggerSync } from '../api';
 interface Props {
   sessions: PlanSession[];
   onRefresh: () => void;
+  loading?: boolean;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -20,7 +21,15 @@ const STATUS_LABELS: Record<string, string> = {
   upcoming: '→ Upcoming',
 };
 
-export default function PlanView({ sessions, onRefresh }: Props) {
+const skeletonStyle: React.CSSProperties = {
+  background: 'linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%)',
+  backgroundSize: '200% 100%',
+  borderRadius: 10,
+  height: 72,
+  animation: 'skeletonPulse 1.4s ease-in-out infinite',
+};
+
+export default function PlanView({ sessions, onRefresh, loading }: Props) {
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState('');
   const planFilename = localStorage.getItem('planFilename');
@@ -45,6 +54,13 @@ export default function PlanView({ sessions, onRefresh }: Props) {
 
   return (
     <section>
+      <style>{`
+        @keyframes skeletonPulse {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
+
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
         <h2 style={{ fontSize: '1.1rem' }}>Training Plan</h2>
         <button onClick={handleSync} disabled={syncing} style={{ background: '#34c759', color: '#fff', fontSize: '0.9rem', padding: '0.4rem 0.8rem' }}>
@@ -60,32 +76,42 @@ export default function PlanView({ sessions, onRefresh }: Props) {
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        {sessions.map(s => (
-          <div key={s.id} style={{ background: STATUS_COLORS[s.alignment_status], borderRadius: 10, padding: '0.75rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-              <span style={{ fontSize: '0.85rem', color: '#555' }}>{formatDate(s.session_date)}</span>
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, whiteSpace: 'nowrap' }}>{STATUS_LABELS[s.alignment_status]}</span>
-            </div>
+        {loading ? (
+          <>
+            <div style={skeletonStyle} />
+            <div style={skeletonStyle} />
+            <div style={skeletonStyle} />
+          </>
+        ) : (
+          <>
+            {sessions.map(s => (
+              <div key={s.id} style={{ background: STATUS_COLORS[s.alignment_status], borderRadius: 10, padding: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '0.85rem', color: '#555' }}>{formatDate(s.session_date)}</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600, whiteSpace: 'nowrap' }}>{STATUS_LABELS[s.alignment_status]}</span>
+                </div>
 
-            <p style={{ marginTop: 4 }}>
-              {s.suggested_training ? (
-                <>
-                  <span style={{ textDecoration: 'line-through', color: '#888', fontSize: '0.9rem' }}>{s.training}</span>
-                  <br />
-                  <span style={{ fontSize: '0.95rem' }}>🤖 {s.suggested_training}</span>
-                </>
-              ) : s.training}
-            </p>
+                <p style={{ marginTop: 4 }}>
+                  {s.suggested_training ? (
+                    <>
+                      <span style={{ textDecoration: 'line-through', color: '#888', fontSize: '0.9rem' }}>{s.training}</span>
+                      <br />
+                      <span style={{ fontSize: '0.95rem' }}>🤖 {s.suggested_training}</span>
+                    </>
+                  ) : s.training}
+                </p>
 
-            {(s.actual_distance || s.actual_pace) && (
-              <p style={{ fontSize: '0.85rem', color: '#444', marginTop: 4 }}>
-                Actual: {s.actual_distance ? `${Number(s.actual_distance).toFixed(2)} km` : ''}
-                {s.actual_pace ? ` @ ${s.actual_pace}/km` : ''}
-              </p>
-            )}
-          </div>
-        ))}
-        {sessions.length === 0 && <p style={{ color: '#888' }}>No sessions yet. Upload a plan to get started.</p>}
+                {(s.actual_distance || s.actual_pace) && (
+                  <p style={{ fontSize: '0.85rem', color: '#444', marginTop: 4 }}>
+                    Actual: {s.actual_distance ? `${Number(s.actual_distance).toFixed(2)} km` : ''}
+                    {s.actual_pace ? ` @ ${s.actual_pace}/km` : ''}
+                  </p>
+                )}
+              </div>
+            ))}
+            {sessions.length === 0 && <p style={{ color: '#888' }}>No sessions yet. Upload a plan to get started.</p>}
+          </>
+        )}
       </div>
     </section>
   );
