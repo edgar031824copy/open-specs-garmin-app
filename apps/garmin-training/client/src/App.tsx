@@ -24,7 +24,7 @@ export default function App() {
         Garmin Training Tracker
       </h1>
       <UploadForm onUploaded={loadData} />
-      <SuggestionsPanel suggestions={suggestions} onAction={loadData} />
+      <SuggestionsPanel suggestions={suggestions} onAccepted={() => fetchSessions().then(r => setSessions(r.data))} />
       <PlanView sessions={sessions} onRefresh={loadData} />
     </main>
   );
