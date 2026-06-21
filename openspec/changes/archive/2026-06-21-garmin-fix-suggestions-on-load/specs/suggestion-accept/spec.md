@@ -1,4 +1,4 @@
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: Accept persists suggestion and updates session
 When the user accepts a suggestion, the system SHALL save the modification to `plan_modifications` AND update the matching `plan_sessions` row with `suggested_training`, then remove only that card from the suggestions list without re-generating all suggestions. Accepted sessions SHALL be permanently excluded from future suggestion generation — the backend MUST NOT return a new suggestion for a session whose `plan_sessions.suggested_training` is already set.

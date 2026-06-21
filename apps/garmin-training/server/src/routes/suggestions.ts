@@ -12,6 +12,7 @@ router.get('/', async (_req: Request, res: Response) => {
       `SELECT session_date, training, alignment_status, deviation_reason
        FROM plan_sessions
        WHERE alignment_status IN ('not_aligned', 'missed')
+         AND session_date NOT IN (SELECT session_date FROM plan_modifications)
        ORDER BY session_date ASC`
     );
 
