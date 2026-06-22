@@ -8,7 +8,7 @@ import suggestionsRouter from './routes/suggestions';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+app.use(cors(process.env.ALLOWED_ORIGIN ? { origin: process.env.ALLOWED_ORIGIN } : undefined));
 app.use(express.json());
 
 app.use('/api/plan', planRouter);
