@@ -20,22 +20,19 @@ Acceptance criteria:
 - **App:** `apps/health-dashboard/`
 - **Key learning:** Default path generates tasks assuming existing scaffolding — update `config.yaml` context before running propose.
 
-### Feature 2 — Garmin Training Comparison 🔄 IN PROGRESS
+### Feature 2 — Garmin Training Comparison ✅ COMPLETE
 - **Path:** OPSX expanded (`new → ff → apply → verify → archive`)
 - **Scope:** Full-stack app — user uploads CSV/XLS running plan, app calls Garmin API to check alignment with actual activities, Claude suggests adjustments for upcoming sessions
-- **Artifacts:** `openspec/changes/garmin-training-comparison/`
+- **Artifacts:** `openspec/changes/archive/2026-06-21-garmin-training-comparison/` (+ 8 fix changes)
 - **App:** `apps/garmin-training/` (server on :3001, client on :5173)
-- **Status:** Code complete, end-to-end local test in progress (task 6.1)
+- **Deployed:** backend on Render, frontend on Vercel
 - **Key learning:** Expanded path lets you pause between steps and review config — better for first-time use and proving per-phase artifact creation.
 
 The contrast between the two features (default vs expanded path, Solo vs Team target) is the core demo and article material.
 
 ## Active change
 
-Feature 2: `garmin-training-comparison` (expanded path, Team target)
-- Change artifacts: `openspec/changes/garmin-training-comparison/`
-- App code: `apps/garmin-training/`
-- Status: apply in progress — end-to-end test pending
+None — all changes archived. PoC implementation complete, pending demo + article (AC#4, AC#5).
 
 ## Naming rule (CRITICAL)
 
@@ -71,17 +68,25 @@ This rule is defined in `openspec/config.yaml` under `rules.apply`.
 ```
 openspec/
   changes/
-    archive/2026-06-16-health-dashboard-endpoint/   # Feature 1 (archived)
-    garmin-training-comparison/                      # Feature 2 (active)
-      proposal.md, design.md, tasks.md
-      specs/plan-upload, garmin-sync, training-suggestions, plan-view
-  specs/health-dashboard/spec.md                    # Main spec from Feature 1
+    archive/                                         # All changes archived
+      2026-06-16-health-dashboard-endpoint/          # Feature 1
+      2026-06-21-garmin-training-comparison/         # Feature 2 main
+      2026-06-21-garmin-fix-*/                       # Feature 2 fix changes (6)
+      2026-06-21-garmin-ui-polish/
+      2026-06-23-garmin-deploy/
+      2026-06-23-garmin-fix-sync/
+  specs/                                             # Canonical specs (synced from changes)
+    health-dashboard/
+    garmin-sync/, plan-upload/, plan-view/
+    training-suggestions/, garmin-deployment/
+    (+ 6 more from fix changes)
   config.yaml                                       # Team target + apply rules
 apps/
   health-dashboard/                                 # Feature 1 complete
   garmin-training/
     server/                                         # Express + Supabase + Garmin + Anthropic
     client/                                         # React + Vite
+render.yaml                                         # Render deployment config
 ```
 
 ## Running locally
