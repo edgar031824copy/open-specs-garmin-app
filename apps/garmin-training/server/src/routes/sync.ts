@@ -7,13 +7,13 @@ import pool from '../db';
 const router = Router();
 
 router.post('/sync', async (_req: Request, res: Response) => {
-  const today = new Date();
-  today.setHours(23, 59, 59, 999);
+  const d = new Date();
+  const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
   try {
     const { rows: sessions } = await pool.query(
       `SELECT * FROM plan_sessions WHERE session_date <= $1 ORDER BY session_date ASC`,
-      [today.toISOString().split('T')[0]]
+      [todayStr]
     );
 
     const results = [];
@@ -40,6 +40,12 @@ router.post('/sync', async (_req: Request, res: Response) => {
           return res.status(503).json({ error: 'Garmin authentication failed' });
         }
         activities = [];
+      }
+
+      const alreadySynced = ['aligned', 'not_aligned'].includes(session.alignment_status);
+      if (activities.length === 0 && alreadySynced) {
+        results.push({ sessionDate: session.session_date, status: session.alignment_status });
+        continue;
       }
 
       const alignment = computeAlignment(session.training, activities);
