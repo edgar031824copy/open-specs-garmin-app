@@ -29,7 +29,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (localStorage.getItem('planFilename')) loadSessions();
+    loadSessions();
   }, [loadSessions]);
 
   return (
