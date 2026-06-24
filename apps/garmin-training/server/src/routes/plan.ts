@@ -42,6 +42,7 @@ router.post('/upload', upload.single('file'), async (req: Request, res: Response
       await client.query('BEGIN');
       await client.query('DELETE FROM plan_modifications');
       await client.query('DELETE FROM plan_sessions');
+      await client.query('DELETE FROM plan_metadata');
 
       for (const s of sessions) {
         await client.query(
@@ -50,6 +51,10 @@ router.post('/upload', upload.single('file'), async (req: Request, res: Response
           [s.week, s.weekDay, s.sessionDate.toISOString().split('T')[0], s.training, s.isFlexible]
         );
       }
+      await client.query(
+        `INSERT INTO plan_metadata (plan_filename, plan_start_date) VALUES ($1, $2)`,
+        [req.file.originalname, planStartDate]
+      );
       await client.query('COMMIT');
     } catch (e) {
       await client.query('ROLLBACK');
@@ -79,6 +84,17 @@ router.get('/sessions', async (_req: Request, res: Response) => {
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch sessions' });
+  }
+});
+
+router.get('/metadata', async (_req: Request, res: Response) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT plan_filename AS "planFilename", plan_start_date AS "planStartDate" FROM plan_metadata LIMIT 1`
+    );
+    res.json(rows[0] ?? null);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch plan metadata' });
   }
 });
 

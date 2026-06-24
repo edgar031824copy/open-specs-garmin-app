@@ -5,6 +5,8 @@ interface Props {
   sessions: PlanSession[];
   onRefresh: () => void;
   loading?: boolean;
+  planFilename?: string;
+  planStartDate?: string;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -29,11 +31,9 @@ const skeletonStyle: React.CSSProperties = {
   animation: 'skeletonPulse 1.4s ease-in-out infinite',
 };
 
-export default function PlanView({ sessions, onRefresh, loading }: Props) {
+export default function PlanView({ sessions, onRefresh, loading, planFilename, planStartDate }: Props) {
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState('');
-  const planFilename = localStorage.getItem('planFilename');
-  const planStartDate = localStorage.getItem('planStartDate');
 
   const handleSync = async () => {
     setSyncing(true);

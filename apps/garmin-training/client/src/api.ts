@@ -39,6 +39,13 @@ export const triggerSync = () => api.post<{ synced: number }>('/api/sync');
 
 export const fetchSuggestions = () => api.get<Suggestion[]>('/api/suggestions');
 
+export interface PlanMetadata {
+  planFilename: string;
+  planStartDate: string;
+}
+
+export const fetchPlanMetadata = () => api.get<PlanMetadata | null>('/api/plan/metadata');
+
 export const acceptSuggestion = (s: Suggestion) =>
   api.post('/api/suggestions/accept', {
     sessionDate: s.sessionDate,
