@@ -71,7 +71,7 @@ export default function PlanView({ sessions, onRefresh, loading, planFilename, p
 
       {planFilename && planStartDate && (
         <p style={{ fontSize: '0.85rem', color: '#555', marginBottom: '0.75rem', background: '#f0f0f0', borderRadius: 8, padding: '0.5rem 0.75rem' }}>
-          📄 {planFilename} · starts {new Date(planStartDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+          📄 {planFilename} · starts {new Date(planStartDate.slice(0, 10) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
         </p>
       )}
 
