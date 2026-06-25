@@ -9,10 +9,14 @@ export interface AlignmentResult {
   deviationReason: string | null;
 }
 
-// Extract planned distance in km from training description e.g. "6 km easy", "12 km long run"
-function parsePlannedDistance(training: string): number | null {
-  const match = training.match(/(\d+(?:\.\d+)?)\s*km/i);
-  return match ? parseFloat(match[1]) : null;
+// Extract planned distance range from training description.
+// Handles "5–6 km" or "5-6 km" → { min: 5, max: 6 }; "6 km" → { min: 6, max: 6 }
+function parseDistanceRange(training: string): { min: number; max: number } | null {
+  const rangeMatch = training.match(/(\d+(?:\.\d+)?)\s*[–-]\s*(\d+(?:\.\d+)?)\s*km/i);
+  if (rangeMatch) return { min: parseFloat(rangeMatch[1]), max: parseFloat(rangeMatch[2]) };
+  const singleMatch = training.match(/(\d+(?:\.\d+)?)\s*km/i);
+  if (singleMatch) { const n = parseFloat(singleMatch[1]); return { min: n, max: n }; }
+  return null;
 }
 
 // Extract pace range in seconds/km from training e.g. "5:40–5:50/km", "5:40-5:50/km"
@@ -39,18 +43,23 @@ export function computeAlignment(training: string, activities: GarminActivity[])
   const actualKm = activity.distance / 1000;
   const actualPace = speedToPace(activity.averageSpeed);
 
-  const plannedKm = parsePlannedDistance(training);
+  const distanceRange = parseDistanceRange(training);
   const paceRange = parsePaceRange(training);
 
   // Distance check
-  if (plannedKm !== null) {
-    const deviation = Math.abs(actualKm - plannedKm) / plannedKm;
-    if (deviation > 0.1) {
+  if (distanceRange !== null) {
+    const { min, max } = distanceRange;
+    const isRange = min !== max;
+    const outOfRange = isRange
+      ? (actualKm < min && (min - actualKm) / min > 0.1) || (actualKm > max && (actualKm - max) / max > 0.1)
+      : Math.abs(actualKm - min) / min > 0.1;
+    if (outOfRange) {
+      const plannedLabel = isRange ? `${min}–${max}km` : `${min}km`;
       return {
         status: 'not_aligned',
         actualDistanceKm: actualKm,
         actualPace,
-        deviationReason: `distance_deviation: planned ${plannedKm}km, actual ${actualKm.toFixed(2)}km`,
+        deviationReason: `distance_deviation: planned ${plannedLabel}, actual ${actualKm.toFixed(2)}km`,
       };
     }
   }

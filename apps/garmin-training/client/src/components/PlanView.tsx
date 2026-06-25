@@ -9,6 +9,14 @@ interface Props {
   planStartDate?: string;
 }
 
+function formatDeviationReason(reason: string): string {
+  const distMatch = reason.match(/distance_deviation: planned (.+?), actual (.+)/);
+  if (distMatch) return `Distance: planned ${distMatch[1]}, actual ${distMatch[2]}`;
+  const paceMatch = reason.match(/pace_deviation: target (.+?), actual (.+)/);
+  if (paceMatch) return `Pace: target ${paceMatch[1]}, actual ${paceMatch[2]}`;
+  return reason;
+}
+
 const STATUS_COLORS: Record<string, string> = {
   aligned: '#d4edda',
   not_aligned: '#fff3cd',
@@ -105,6 +113,12 @@ export default function PlanView({ sessions, onRefresh, loading, planFilename, p
                   <p style={{ fontSize: '0.85rem', color: '#444', marginTop: 4 }}>
                     Actual: {s.actual_distance ? `${Number(s.actual_distance).toFixed(2)} km` : ''}
                     {s.actual_pace ? ` @ ${s.actual_pace}/km` : ''}
+                  </p>
+                )}
+
+                {s.alignment_status === 'not_aligned' && s.deviation_reason && (
+                  <p style={{ fontSize: '0.8rem', color: '#b8860b', marginTop: 2 }}>
+                    {formatDeviationReason(s.deviation_reason)}
                   </p>
                 )}
               </div>
