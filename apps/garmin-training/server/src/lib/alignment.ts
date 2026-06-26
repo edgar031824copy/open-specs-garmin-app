@@ -73,7 +73,7 @@ export function computeAlignment(training: string, activities: GarminActivity[])
         status: 'not_aligned',
         actualDistanceKm: actualKm,
         actualPace,
-        deviationReason: `pace_deviation: target ${paceRange.minSecs / 60}:${paceRange.minSecs % 60}–${paceRange.maxSecs / 60}:${paceRange.maxSecs % 60}/km, actual ${actualPace}/km`,
+        deviationReason: `pace_deviation: target ${Math.floor(paceRange.minSecs / 60)}:${String(paceRange.minSecs % 60).padStart(2, '0')}–${Math.floor(paceRange.maxSecs / 60)}:${String(paceRange.maxSecs % 60).padStart(2, '0')}/km, actual ${actualPace}/km`,
       };
     }
   }
