@@ -38,6 +38,7 @@ export const fetchSessions = () => api.get<PlanSession[]>('/api/plan/sessions');
 export const triggerSync = () => api.post<{ synced: number }>('/api/sync');
 
 export const fetchSuggestions = () => api.get<Suggestion[]>('/api/suggestions');
+export const generateSuggestions = () => api.post<Suggestion[]>('/api/suggestions/generate');
 
 export interface PlanMetadata {
   planFilename: string;
@@ -54,4 +55,4 @@ export const acceptSuggestion = (s: Suggestion) =>
     reason: s.reason,
   });
 
-export const rejectSuggestion = () => api.post('/api/suggestions/reject');
+export const rejectSuggestion = (sessionDate: string) => api.post('/api/suggestions/reject', { sessionDate });

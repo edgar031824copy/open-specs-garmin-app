@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Suggestion, acceptSuggestion, PlanSession } from '../api';
+import { Suggestion, acceptSuggestion, rejectSuggestion, PlanSession } from '../api';
 
 interface Props {
   suggestions: Suggestion[];
   sessions: PlanSession[];
   onAccepted: () => void;
+  onGenerate: () => void;
   loading?: boolean;
 }
 
@@ -23,42 +24,16 @@ const appliedBadge = (
   </span>
 );
 
-export default function SuggestionsPanel({ suggestions, sessions, onAccepted, loading }: Props) {
+export default function SuggestionsPanel({ suggestions, sessions, onAccepted, onGenerate, loading }: Props) {
   const [list, setList] = useState(suggestions);
 
   useEffect(() => setList(suggestions), [suggestions]);
 
-  // Build a set of dates that already have an accepted modification
   const appliedDates = new Set(
     sessions
       .filter(s => s.suggested_training != null)
       .map(s => s.session_date.slice(0, 10))
   );
-
-  if (loading) {
-    return (
-      <section style={{ background: '#fff', borderRadius: 12, padding: '1rem', marginBottom: '1rem' }}>
-        <style>{`
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>🤖 Suggested Adjustments</h2>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '1.5rem 0' }}>
-          <div style={{
-            width: 28,
-            height: 28,
-            border: '3px solid #e0e0e0',
-            borderTopColor: '#007aff',
-            borderRadius: '50%',
-            animation: 'spin 0.8s linear infinite',
-          }} />
-        </div>
-      </section>
-    );
-  }
-
-  if (list.length === 0) return null;
 
   const formatDate = (d: string) =>
     new Date(d.slice(0, 10) + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -69,13 +44,54 @@ export default function SuggestionsPanel({ suggestions, sessions, onAccepted, lo
     onAccepted();
   };
 
-  const handleReject = (index: number) => {
+  const handleReject = async (s: Suggestion, index: number) => {
     setList(prev => prev.filter((_, i) => i !== index));
+    await rejectSuggestion(s.sessionDate);
   };
+
+  if (loading) {
+    return (
+      <section style={{ background: '#fff', borderRadius: 12, padding: '1rem', marginBottom: '1rem' }}>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>🤖 Suggested Adjustments</h2>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '1.5rem 0' }}>
+          <div style={{
+            width: 28, height: 28,
+            border: '3px solid #e0e0e0',
+            borderTopColor: '#007aff',
+            borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite',
+          }} />
+        </div>
+      </section>
+    );
+  }
+
+  if (list.length === 0) {
+    return (
+      <section style={{ background: '#fff', borderRadius: 12, padding: '1rem', marginBottom: '1rem' }}>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>🤖 Suggested Adjustments</h2>
+        <button
+          onClick={onGenerate}
+          style={{ background: '#007aff', color: '#fff', width: '100%', fontSize: '0.95rem', padding: '0.6rem' }}
+        >
+          Get Suggestions
+        </button>
+      </section>
+    );
+  }
 
   return (
     <section style={{ background: '#fff', borderRadius: 12, padding: '1rem', marginBottom: '1rem' }}>
-      <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>🤖 Suggested Adjustments</h2>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+        <h2 style={{ fontSize: '1.1rem', margin: 0 }}>🤖 Suggested Adjustments</h2>
+        <button
+          onClick={onGenerate}
+          style={{ background: '#007aff', color: '#fff', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
+        >
+          Regenerate
+        </button>
+      </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {list.map((s, i) => {
           const isApplied = appliedDates.has(s.sessionDate.slice(0, 10));
@@ -100,7 +116,7 @@ export default function SuggestionsPanel({ suggestions, sessions, onAccepted, lo
                   <button onClick={() => handleAccept(s)} style={{ background: '#34c759', color: '#fff', flex: 1, fontSize: '0.9rem' }}>
                     Accept
                   </button>
-                  <button onClick={() => handleReject(i)} style={{ background: '#ff3b30', color: '#fff', flex: 1, fontSize: '0.9rem' }}>
+                  <button onClick={() => handleReject(s, i)} style={{ background: '#ff3b30', color: '#fff', flex: 1, fontSize: '0.9rem' }}>
                     Reject
                   </button>
                 </div>
