@@ -40,6 +40,7 @@ router.post('/upload', upload.single('file'), async (req: Request, res: Response
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
+      await client.query('DELETE FROM suggestions');
       await client.query('DELETE FROM plan_modifications');
       await client.query('DELETE FROM plan_sessions');
       await client.query('DELETE FROM plan_metadata');
