@@ -85,12 +85,6 @@ export default function SuggestionsPanel({ suggestions, sessions, onAccepted, on
     <section style={{ background: '#fff', borderRadius: 12, padding: '1rem', marginBottom: '1rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
         <h2 style={{ fontSize: '1.1rem', margin: 0 }}>🤖 Suggested Adjustments</h2>
-        <button
-          onClick={onGenerate}
-          style={{ background: '#007aff', color: '#fff', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
-        >
-          Regenerate
-        </button>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {list.map((s, i) => {
