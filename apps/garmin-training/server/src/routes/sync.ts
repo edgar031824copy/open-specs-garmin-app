@@ -66,6 +66,8 @@ router.post('/sync', async (_req: Request, res: Response) => {
       results.push({ sessionDate: session.session_date, status: alignment.status });
     }
 
+    await pool.query(`DELETE FROM suggestions WHERE status = 'pending'`);
+
     res.json({ synced: results.length, results });
   } catch (err) {
     console.error(err);

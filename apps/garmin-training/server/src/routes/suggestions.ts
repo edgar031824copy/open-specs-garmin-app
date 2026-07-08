@@ -28,6 +28,7 @@ router.get('/', async (_req: Request, res: Response) => {
 });
 
 // Call Claude, persist results, skip accepted/rejected rows
+// Pending rows are cleared by sync — no need to delete here
 router.post('/generate', async (_req: Request, res: Response) => {
   try {
     const today = new Date().toISOString().split('T')[0];
@@ -60,15 +61,7 @@ router.post('/generate', async (_req: Request, res: Response) => {
     );
 
     if (eligibleDeviated.length === 0) {
-      const { rows: existing } = await pool.query(
-        `SELECT session_date, original_training, suggested_training, reason FROM suggestions WHERE status = 'pending' ORDER BY session_date ASC`
-      );
-      return res.json(existing.map(r => ({
-        sessionDate: toDateStr(r.session_date),
-        originalTraining: r.original_training,
-        suggestedTraining: r.suggested_training,
-        reason: r.reason,
-      })));
+      return res.json([]);
     }
 
     const suggestions = await generateSuggestions(
