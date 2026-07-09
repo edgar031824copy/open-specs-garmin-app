@@ -33,6 +33,8 @@ router.post('/generate', async (_req: Request, res: Response) => {
   try {
     const today = new Date().toISOString().split('T')[0];
 
+    await pool.query(`DELETE FROM suggestions WHERE status = 'rejected'`);
+
     const { rows: decidedRows } = await pool.query(
       `SELECT session_date FROM suggestions WHERE status = 'accepted'`
     );
