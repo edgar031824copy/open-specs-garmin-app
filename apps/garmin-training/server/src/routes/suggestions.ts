@@ -27,14 +27,14 @@ router.get('/', async (_req: Request, res: Response) => {
   }
 });
 
-// Call Claude, persist results, skip accepted/rejected rows
-// Pending rows are cleared by sync — no need to delete here
+// Call Claude, persist results, skip only accepted rows
+// Rejected rows are cleared by sync so they restart the suggestion flow
 router.post('/generate', async (_req: Request, res: Response) => {
   try {
     const today = new Date().toISOString().split('T')[0];
 
     const { rows: decidedRows } = await pool.query(
-      `SELECT session_date FROM suggestions WHERE status IN ('accepted', 'rejected')`
+      `SELECT session_date FROM suggestions WHERE status = 'accepted'`
     );
     const decidedDates = new Set(decidedRows.map(r => toDateStr(r.session_date)));
 
