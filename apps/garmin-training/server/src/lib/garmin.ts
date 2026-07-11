@@ -8,6 +8,12 @@ export interface GarminActivity {
   duration: number; // seconds
   averageSpeed: number; // m/s
   activityType: { typeKey: string };
+  hasHrTimeInZones: boolean;
+}
+
+export interface HrZoneTime {
+  zoneNumber: number;
+  secsInZone: number;
 }
 
 let client: GarminConnect | null = null;
@@ -29,11 +35,28 @@ export async function getActivitiesForDate(dateStr: string): Promise<GarminActiv
   const gc = await getClient();
 
   // Fetch activities and filter by date and running type
-  const activities: GarminActivity[] = await gc.getActivities(0, 20);
-  return activities.filter(a => {
-    const actDate = a.startTimeLocal?.split(' ')[0];
-    return actDate === dateStr && a.activityType?.typeKey === 'running';
-  });
+  const activities = (await gc.getActivities(0, 20)) as unknown as GarminActivity[];
+  return activities
+    .filter(a => {
+      const actDate = a.startTimeLocal?.split(' ')[0];
+      return actDate === dateStr && a.activityType?.typeKey === 'running';
+    })
+    .map(a => ({ ...a, hasHrTimeInZones: a.hasHrTimeInZones ?? false }));
+}
+
+// Time-in-zone breakdown for an activity. garmin-connect doesn't wrap this
+// endpoint, so hit it via the client's own authenticated get<T>().
+export async function getHrTimeInZones(activityId: number): Promise<HrZoneTime[] | null> {
+  try {
+    const gc = await getClient();
+    const url = `https://connectapi.garmin.com/activity-service/activity/${activityId}/hrTimeInZones`;
+    const data = await gc.get<Array<{ zoneNumber: number; secsInZone: number }>>(url);
+    if (!Array.isArray(data)) return null;
+    return data.map(z => ({ zoneNumber: z.zoneNumber, secsInZone: z.secsInZone }));
+  } catch (err) {
+    console.error('getHrTimeInZones failed:', err instanceof Error ? err.message : err);
+    return null;
+  }
 }
 
 // meters/second → min/km string (e.g. "5:30")

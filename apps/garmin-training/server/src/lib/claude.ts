@@ -7,6 +7,7 @@ export interface SessionForPrompt {
   training: string;
   alignmentStatus: string;
   deviationReason: string | null;
+  zoneDeviationMessage: string | null;
 }
 
 export interface UpcomingSession {
@@ -30,7 +31,7 @@ export async function generateSuggestions(
   const deviationText = deviatedSessions
     .map(
       (s) =>
-        `- ${s.sessionDate}: "${s.training}" → status: ${s.alignmentStatus}${s.deviationReason ? ` (${s.deviationReason})` : ""}`,
+        `- ${s.sessionDate}: "${s.training}" → status: ${s.alignmentStatus}${s.deviationReason ? ` (${s.deviationReason})` : ""}${s.zoneDeviationMessage ? ` (zone deviation: ${s.zoneDeviationMessage})` : ""}`,
     )
     .join("\n");
 

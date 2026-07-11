@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { getActivitiesForDate, GarminActivity } from '../lib/garmin';
-import { computeAlignment } from '../lib/alignment';
+import { computeAlignment, computeZoneDeviation } from '../lib/alignment';
 import { getAlternateDateStrings } from '../lib/dateResolver';
 import pool from '../db';
 
@@ -49,21 +49,25 @@ router.post('/sync', async (_req: Request, res: Response) => {
       }
 
       const alignment = computeAlignment(session.training, activities);
+      const longestActivity =
+        activities.length > 0 ? activities.reduce((a, b) => (a.distance > b.distance ? a : b)) : null;
+      const zoneDeviation = await computeZoneDeviation(session.training, longestActivity);
 
       await pool.query(
         `UPDATE plan_sessions
-         SET alignment_status = $1, actual_distance = $2, actual_pace = $3, deviation_reason = $4
-         WHERE id = $5`,
+         SET alignment_status = $1, actual_distance = $2, actual_pace = $3, deviation_reason = $4, zone_deviation = $5
+         WHERE id = $6`,
         [
           alignment.status,
           alignment.actualDistanceKm,
           alignment.actualPace,
           alignment.deviationReason,
+          zoneDeviation ? JSON.stringify(zoneDeviation) : null,
           session.id,
         ]
       );
 
-      results.push({ sessionDate: session.session_date, status: alignment.status });
+      results.push({ sessionDate: session.session_date, status: alignment.status, zoneDeviation });
     }
 
     await pool.query(`DELETE FROM suggestions WHERE status IN ('pending', 'rejected')`);

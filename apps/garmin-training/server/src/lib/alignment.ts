@@ -1,4 +1,4 @@
-import { GarminActivity, speedToPace } from './garmin';
+import { GarminActivity, speedToPace, getHrTimeInZones } from './garmin';
 
 export type AlignmentStatus = 'aligned' | 'not_aligned' | 'missed';
 
@@ -7,6 +7,20 @@ export interface AlignmentResult {
   actualDistanceKm: number | null;
   actualPace: string | null;
   deviationReason: string | null;
+}
+
+export interface ZoneDeviation {
+  targetZone: number;
+  actualZonePercent: number;
+  message: string;
+}
+
+const ZONE_DEVIATION_THRESHOLD_PERCENT = 50;
+
+// Extract a single named heart-rate zone from training description, e.g. "Z2" or "Zone 2".
+export function parseTargetZone(training: string): number | null {
+  const match = training.match(/\bZ(?:one)?\s*([1-5])\b/i);
+  return match ? parseInt(match[1]) : null;
 }
 
 // Extract planned distance range from training description.
@@ -79,4 +93,39 @@ export function computeAlignment(training: string, activities: GarminActivity[])
   }
 
   return { status: 'aligned', actualDistanceKm: actualKm, actualPace, deviationReason: null };
+}
+
+// Non-blocking zone deviation annotation. Never affects AlignmentResult/alignment_status.
+export async function computeZoneDeviation(
+  training: string,
+  activity: GarminActivity | null
+): Promise<ZoneDeviation | null> {
+  const targetZone = parseTargetZone(training);
+  if (targetZone === null || !activity) return null;
+
+  // The activities-list summary's `hasHrTimeInZones` flag isn't reliably
+  // populated by the search endpoint, so always attempt the fetch and let
+  // getHrTimeInZones' own null-on-failure handle absence of data.
+  const zones = await getHrTimeInZones(activity.activityId);
+  if (!zones || zones.length === 0) {
+    console.log(`computeZoneDeviation: no zone data returned for activity ${activity.activityId}`);
+    return null;
+  }
+
+  const totalSecs = zones.reduce((sum, z) => sum + z.secsInZone, 0);
+  if (totalSecs === 0) return null;
+
+  const targetSecs = zones.find(z => z.zoneNumber === targetZone)?.secsInZone ?? 0;
+  const actualZonePercent = Math.round((targetSecs / totalSecs) * 100);
+
+  if (actualZonePercent >= ZONE_DEVIATION_THRESHOLD_PERCENT) return null;
+
+  const dominant = zones.reduce((a, b) => (a.secsInZone > b.secsInZone ? a : b));
+  const dominantPercent = Math.round((dominant.secsInZone / totalSecs) * 100);
+
+  return {
+    targetZone,
+    actualZonePercent,
+    message: `Mostly Z${dominant.zoneNumber} instead of Z${targetZone} (${dominantPercent}% vs ${actualZonePercent}%)`,
+  };
 }

@@ -17,6 +17,7 @@ export interface PlanSession {
   deviation_reason: string | null;
   suggested_training: string | null;
   modification_reason: string | null;
+  zone_deviation: { targetZone: number; actualZonePercent: number; message: string } | null;
 }
 
 export interface Suggestion {

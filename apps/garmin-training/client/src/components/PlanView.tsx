@@ -121,6 +121,12 @@ export default function PlanView({ sessions, onRefresh, loading, planFilename, p
                     {formatDeviationReason(s.deviation_reason)}
                   </p>
                 )}
+
+                {s.zone_deviation && (
+                  <p style={{ fontSize: '0.78rem', color: '#888', fontStyle: 'italic', marginTop: 2 }}>
+                    ⓘ {s.zone_deviation.message}
+                  </p>
+                )}
               </div>
             ))}
             {sessions.length === 0 && <p style={{ color: '#888' }}>No sessions yet. Upload a plan to get started.</p>}

@@ -41,7 +41,7 @@ router.post('/generate', async (_req: Request, res: Response) => {
     const decidedDates = new Set(decidedRows.map(r => toDateStr(r.session_date)));
 
     const { rows: deviatedSessions } = await pool.query(
-      `SELECT session_date, training, alignment_status, deviation_reason
+      `SELECT session_date, training, alignment_status, deviation_reason, zone_deviation
        FROM plan_sessions
        WHERE alignment_status IN ('not_aligned', 'missed')
          AND session_date NOT IN (SELECT session_date FROM plan_modifications)
@@ -72,6 +72,7 @@ router.post('/generate', async (_req: Request, res: Response) => {
         training: s.training,
         alignmentStatus: s.alignment_status,
         deviationReason: s.deviation_reason,
+        zoneDeviationMessage: s.zone_deviation?.message ?? null,
       })),
       upcomingSessions.map(s => ({
         sessionDate: toDateStr(s.session_date),
