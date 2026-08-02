@@ -35,7 +35,7 @@ export async function getActivitiesForDate(dateStr: string): Promise<GarminActiv
   const gc = await getClient();
 
   // Fetch activities and filter by date and running type
-  const activities = (await gc.getActivities(0, 20)) as unknown as GarminActivity[];
+  const activities = (await gc.getActivities(0, 200)) as unknown as GarminActivity[];
   return activities
     .filter(a => {
       const actDate = a.startTimeLocal?.split(' ')[0];
